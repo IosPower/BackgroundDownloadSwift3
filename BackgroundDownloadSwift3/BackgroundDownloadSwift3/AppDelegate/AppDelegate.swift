@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var backgroundSessionCompletionHandler: (() -> Void)?
     let completionHandler = [String: ()-> Void]()
     
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         setupRechablity()
         if(UIApplication.instancesRespond(to: #selector(UIApplication.registerUserNotificationSettings(_:)))) {
@@ -81,7 +81,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch { print("cant access") }
     }
     
-    func reachabilityChanged(note: NSNotification) {
+    @objc func reachabilityChanged(note: NSNotification) {
         let reachability = note.object as! Reachability
         if reachability.isReachable {
             if reachability.isReachableViaWiFi {
@@ -107,7 +107,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 content.title = strTitle as String //"Local Notification Swift3"
                 content.subtitle = "Video Details"
                 content.body = "Download Complete"
-                content.sound = UNNotificationSound.default()
+                content.sound = UNNotificationSound.default
                 // Deliver the notification in five seconds.
                 let trigger = UNTimeIntervalNotificationTrigger.init(timeInterval:0.5, repeats: false)
                 

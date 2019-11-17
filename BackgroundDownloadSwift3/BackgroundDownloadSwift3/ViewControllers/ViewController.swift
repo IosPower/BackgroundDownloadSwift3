@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
        callGETWebservice()
        tblDetails.estimatedRowHeight = 65
-       tblDetails.rowHeight = UITableViewAutomaticDimension;
+        tblDetails.rowHeight = UITableView.automaticDimension;
         tblDetails.separatorInset = .zero
     }
 
@@ -50,6 +50,11 @@ class ViewController: UIViewController {
     //MARK:-  GET Webservice
     func callGETWebservice() {
         //RequestForGet Method
+        
+        // for testing
+        arrayData.append(VideoDetail(email: "xyz@gmail.com", image: "https://file-examples.com/wp-content/uploads/2017/10/file-example_PDF_1MB.pdf", lat: nil, long: nil, username: "PiyushSinroja"))
+        tblDetails.reloadData()
+        /*
         let checkInternet = Constant.reachabilityCheck()
         if checkInternet == true {
             // Constant.showLoadingHUD(ViewController: self)
@@ -61,7 +66,7 @@ class ViewController: UIViewController {
         }
         else {
             Constant.InternetConnection(ViewController: self)
-        }
+        }*/
     }
 
     //MARK:- Button Next
@@ -71,12 +76,12 @@ class ViewController: UIViewController {
     }
 
     //MARK:- Cell Button Actions
-    func btnDownloadAction(sender: UIButton) {
+    @objc func btnDownloadAction(sender: UIButton) {
         if let imgSender = sender.currentBackgroundImage {
-            let dataSender = UIImagePNGRepresentation(imgSender)
-            let dataEyeButton = UIImagePNGRepresentation(#imageLiteral(resourceName: "eye"))
-            let dataPlayButton = UIImagePNGRepresentation(#imageLiteral(resourceName: "play"))
-            let dataDownloadButton = UIImagePNGRepresentation(#imageLiteral(resourceName: "iconNew"))
+            let dataSender = imgSender.pngData()
+            let dataEyeButton = #imageLiteral(resourceName: "eye").pngData()
+            let dataPlayButton = #imageLiteral(resourceName: "play").pngData()
+            let dataDownloadButton = #imageLiteral(resourceName: "iconNew").pngData()
             
             if dataSender == dataDownloadButton {
                 let videoDetail = arrayData[sender.tag]
@@ -92,7 +97,7 @@ class ViewController: UIViewController {
         }
     }
     
-    func btnPauseResumeAction(sender: UIButton) {
+    @objc func btnPauseResumeAction(sender: UIButton) {
         let videoDetail = arrayData[sender.tag]
         if(sender.titleLabel!.text == "Pause") {
             pauseDownload(videoDetail)
@@ -102,7 +107,7 @@ class ViewController: UIViewController {
         tblDetails.reloadRows(at: [IndexPath(row: sender.tag, section: 0)], with: .none)
     }
     
-    func btnCancelDownloadAction(sender: UIButton) {
+    @objc func btnCancelDownloadAction(sender: UIButton) {
         let videoDetail = arrayData[sender.tag]
         cancelDownload(videoDetail)
         tblDetails.reloadRows(at: [IndexPath(row: sender.tag, section: 0)], with: .none)
@@ -258,17 +263,17 @@ class ViewController: UIViewController {
 // MARK: - NSURLSessionDelegate
 extension ViewController: URLSessionDelegate {
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-        if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-            if let completionHandler = appDelegate.backgroundSessionCompletionHandler {
-                appDelegate.backgroundSessionCompletionHandler = nil
-                DispatchQueue.main.async(execute: {
+        DispatchQueue.main.async(execute: {
+            if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                if let completionHandler = appDelegate.backgroundSessionCompletionHandler {
+                    appDelegate.backgroundSessionCompletionHandler = nil
                     completionHandler()
-                })
+                }
+                else {
+                    print("issue in completionHandler")
+                }
             }
-            else {
-                print("issue in completionHandler")
-            }
-        }
+        })
     }
 }
 
@@ -296,19 +301,21 @@ extension ViewController: URLSessionDownloadDelegate {
         if let url = downloadTask.response?.url?.absoluteString {
             if let videoDetailIndex = videoDetailIndexForDownloadTask(downloadTask) {
                 let videoDetail = arrayData[videoDetailIndex]
-                let appdelegate = UIApplication.shared.delegate as! AppDelegate
-                print(videoDetail.email ?? "")
-                appdelegate.strTitle =  videoDetail.email! as NSString
-                print(appdelegate.strTitle)
-                let state = UIApplication.shared.applicationState
-                if state == .background {
-                    // background
-                    appdelegate.localNotification()
+                DispatchQueue.main.async {
+                    let appdelegate = UIApplication.shared.delegate as! AppDelegate
+                    print(videoDetail.email ?? "")
+                    appdelegate.strTitle =  videoDetail.email! as NSString
+                    print(appdelegate.strTitle)
+                    let state = UIApplication.shared.applicationState
+                    if state == .background {
+                        // background
+                        appdelegate.localNotification()
+                    }
                 }
             }
             
             activeDownloads[url] = nil
-        
+            
             if let videoDetailIndex = videoDetailIndexForDownloadTask(downloadTask) {
                 DispatchQueue.main.async(execute: {
                     self.tblDetails.reloadRows(at: [IndexPath(row: videoDetailIndex, section: 0)], with: .none)
@@ -329,10 +336,10 @@ extension ViewController: URLSessionDownloadDelegate {
             let totalSize = ByteCountFormatter.string(fromByteCount: totalBytesExpectedToWrite, countStyle: ByteCountFormatter.CountStyle.binary)
             // 4
             if let videoDetailIndex = videoDetailIndexForDownloadTask(downloadTask) {
-               if let videoDetailCell = tblDetails.cellForRow(at: IndexPath(row: videoDetailIndex, section: 0)) as? simpleCell {
-                    DispatchQueue.main.async(execute: {
+                DispatchQueue.main.async {
+                    if let videoDetailCell = self.tblDetails.cellForRow(at: IndexPath(row: videoDetailIndex, section: 0)) as? simpleCell {
                         print(videoDetailIndex)
-                        // print(totalSize)
+                        print(totalSize)
                         //VideoDetailCell.progressView.progress = download.progress
                         // VideoDetailCell.progressLabel.text =  String(format: "%.1f%% of %@",  download.progress * 100, totalSize)
                         let str = String(format: "%.1f%%",  download.progress * 100)
@@ -344,10 +351,9 @@ extension ViewController: URLSessionDownloadDelegate {
                             videoDetailCell.btnDownload.backgroundColor = UIColor.green
                             videoDetailCell.btnDownload.setBackgroundImage(nil, for: .normal)
                         }
-                    })
-                }
-                else {
-                print("Cell is nil")
+                    } else {
+                        print("Cell is nil")
+                    }
                 }
             }
         }
@@ -358,8 +364,9 @@ extension ViewController: URLSessionDownloadDelegate {
             print("Download completed with error \(error?.localizedDescription)")
             if let downloadUrl = task.response?.url?.absoluteString,
                 let download = activeDownloads[downloadUrl] {
-                if let videoDetailIndex = videoDetailIndexForDownloadTask(task as! URLSessionDownloadTask), let videoDetailCell = tblDetails.cellForRow(at: IndexPath(row: videoDetailIndex, section: 0)) as? simpleCell {
-                    DispatchQueue.main.async(execute: {
+                DispatchQueue.main.async(execute: {
+                    if let videoDetailIndex = self.videoDetailIndexForDownloadTask(task as! URLSessionDownloadTask), let videoDetailCell = self.tblDetails.cellForRow(at: IndexPath(row: videoDetailIndex, section: 0)) as? simpleCell {
+                        
                         let str = String(format: "%.1f%%",  download.progress * 100)
                         print("downloaded Value:\(str)")
                         videoDetailCell.progressView.progress = download.progress
@@ -367,13 +374,13 @@ extension ViewController: URLSessionDownloadDelegate {
                         if videoDetailCell.btnDownload.currentBackgroundImage != nil{
                             videoDetailCell.btnDownload.setBackgroundImage(nil, for: .normal)
                         }
-                    })
-                }
+                        
+                    }  })
             }
         }
         else{
-              print("Download finished successfully.")
-            }
+            print("Download finished successfully.")
+        }
     }
 }
 
@@ -470,7 +477,7 @@ extension ViewController : UITableViewDataSource {
 
 //            cell.lblProgress.text = (download.isDownloading) ? "Downloading..." : "Paused"
             let title = (download.isDownloading) ? "Pause" : "Resume"
-            cell.btnPauseResume.setTitle(title, for: UIControlState())
+            cell.btnPauseResume.setTitle(title, for: .normal)
             cell.btnDownload.setBackgroundImage(nil, for: .normal)
         }
         else {
@@ -518,7 +525,7 @@ extension ViewController : UITableViewDelegate {
         print("did select index")
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableViewAutomaticDimension
+        return UITableView.automaticDimension
     }
 }
 

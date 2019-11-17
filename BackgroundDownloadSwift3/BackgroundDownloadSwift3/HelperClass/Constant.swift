@@ -10,7 +10,7 @@ class Constant: NSObject {
     
     static var HUD = MBProgressHUD()
     
-    static let indicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+    static let indicator = UIActivityIndicatorView(style: .whiteLarge)
     
     static var reachability: Reachability?
     
@@ -77,7 +77,7 @@ class Constant: NSObject {
             return false
         }
         //Username should not be more than 40 characters.
-        if strUsername.characters.count >= 40{
+        if strUsername.count >= 40{
             return false
         }
         //Username should not contain space
@@ -101,11 +101,11 @@ class Constant: NSObject {
             return false
         }
         //Password should be at least 6 characters.
-        if strPasswd.characters.count < 6{
+        if strPasswd.count < 6{
             return false
         }
         //Password should not be more than 40 characters.
-        if strPasswd.characters.count > 40{
+        if strPasswd.count > 40{
             return false
         }
         //Password should not contain space
@@ -132,7 +132,7 @@ class Constant: NSObject {
     }
     
     static func setPalceHolderTextColor(textFiled:UITextField, text:String) {
-        textFiled.attributedPlaceholder = NSAttributedString(string:text, attributes:[NSForegroundColorAttributeName: UIColor.init(colorLiteralRed: 254/255, green: 254/255, blue: 254/255, alpha: 0.20)])
+         textFiled.attributedPlaceholder = NSAttributedString(string: text, attributes: [NSAttributedString.Key.foregroundColor: UIColor.init(displayP3Red: 254/255, green: 254/255, blue: 254/255, alpha: 0.20)])
         
     }
     
@@ -145,7 +145,7 @@ class Constant: NSObject {
             Constant.indicator.layer.cornerRadius = 5.0
             Constant.indicator.backgroundColor = UIColor.lightGray
             ViewController.view.addSubview(Constant.indicator)
-            ViewController.view.bringSubview(toFront: Constant.indicator)
+            ViewController.view.bringSubviewToFront(Constant.indicator)
             Constant.indicator.startAnimating(isUserInteractionEnabled: false)
         }
     }
@@ -185,15 +185,15 @@ class Constant: NSObject {
     }
     
     static func InternetConnection(ViewController:UIViewController) {
-        let alert = UIAlertController(title: "SimpleWebsreviceDemo", message: Constant.InternetConnectionProblem, preferredStyle: UIAlertControllerStyle.alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler:nil))
+        let alert = UIAlertController(title: "SimpleWebsreviceDemo", message: Constant.InternetConnectionProblem, preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler:nil))
         ViewController.present(alert, animated: true, completion: nil)
     }
     
     //MARK:- INTERNAL_SERVER_ERROR
     static func InternalserverError(ViewController:UIViewController) {
-        let alert = UIAlertController(title: "SimpleWebsreviceDemo", message: Constant.CommonAlert, preferredStyle: UIAlertControllerStyle.alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler:nil))
+        let alert = UIAlertController(title: "SimpleWebsreviceDemo", message: Constant.CommonAlert, preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler:nil))
         ViewController.present(alert, animated: true, completion: nil)
     }
     
